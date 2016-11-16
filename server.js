@@ -1,11 +1,16 @@
 const http = require('http');
 const express = require('express');
-const socketIO = require('socket.io');
+const io = require('socket.io');
 
 const app = express();
 app.use(express.static('public'));
 
 const server = http.Server(app);
-const io = socketIO(server); // eslint-disable-line no-unused-vars
+const socket = io(server); // eslint-disable-line no-unused-vars
+socket.on('connection', (client) => {
+  client.on('draw', (position) => {
+    client.broadcast.emit('draw', position);
+  });
+});
 
 server.listen(process.env.PORT || 8080);
