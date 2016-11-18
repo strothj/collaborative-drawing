@@ -2,6 +2,7 @@ const pictionary = function pictionary() {
   let context;
   const socket = io();
   let drawing;
+  let role;
 
   const draw = function draw({ x, y }) {
     context.beginPath();
@@ -25,6 +26,7 @@ const pictionary = function pictionary() {
   });
 
   canvas.on('mousedown', () => {
+    if (role !== 'drawer') return;
     drawing = true;
   });
 
@@ -37,7 +39,27 @@ const pictionary = function pictionary() {
   });
 
   socket.on('guess', (guess) => {
-    $('#receivedGuess').text(guess);
+    $('#receivedGuess').text(`User guess: ${guess}`);
+  });
+
+  socket.on('role', (newRole) => {
+    role = newRole;
+    if (role === 'guesser') {
+      $('#guess').css('display', 'block');
+    }
+  });
+
+  socket.on('user count', (count) => {
+    $('#userCount').text(`Players connected: ${count}`);
+  });
+
+  socket.on('word', (word) => {
+    $('#drawWord').text(word);
+  });
+
+  socket.on('reset', (error) => {
+    alert(error); // eslint-disable-line no-alert
+    location.reload();
   });
 
   const guessBox = $('#guess input');
